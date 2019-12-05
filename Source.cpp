@@ -1,137 +1,40 @@
 #include <iostream>
-#include <vector>
+#include <allegro5/allegro.h>
 #include <allegro5/allegro_primitives.h>
+#include <complex>
 using namespace std;
-class snow {
-private:
-	int Xpos;
-	int Ypos;
-	int size;
-
-public:
-
-	void repos();
-	void draw();
-	void movment();
-	snow();
-};
-class snow2 {
-private:
-	int Xpos;
-	int Ypos;
-	int size;
-
-
-public:
-
-	void repos();
-	void draw();
-	void movment();
-
-	snow2();
-
-};
+const int W = 800;
+const int H = 800;
+double mandelbrot(complex<double>c);
 int main() {
-	ALLEGRO_DISPLAY* nomnom;
-	srand(time(NULL));
+	
 	al_init();
-	nomnom = al_create_display(640, 480);
 	al_init_primitives_addon();
+	ALLEGRO_DISPLAY* TIA = al_create_display(W, H);
+	complex<double>c;
+	int num;
 
-	vector<snow*>snowcloud;
-	vector<snow*>::iterator iter3;
-	vector<snow2*>snowcloud2;
-	vector<snow2*>::iterator iter2;
+	for(double t=-2;t<2;t+=.01)
+		for (double m = -2; m < 2; m+=.01) {
+			c = complex<double> (t,m);
+			num = mandelbrot(c);
 
-	for (int T = 0; T < 500; T++) {
-		snow* newsnow = new snow();
-		snowcloud.push_back(newsnow);
-		snow2* newsnow2 = new snow2();
-		snowcloud2.push_back(newsnow2);
-	}
-
-
-	while (1) 
-	{
-		//"timer" section
-		for (iter3 = snowcloud.begin(); iter3 != snowcloud.end(); iter3++){
-		(*iter3)-> repos();
-		(*iter3)-> movment();
-
+			al_put_pixel(t*100+400, m*100+400, al_map_rgb(num*229, num*204, num*255));
+			cout << "num is " << num << " at " << t*100+400<<" "<<m*100+400<< endl;
+			al_flip_display();
 		}
-
-
-		for (iter2 = snowcloud2.begin(); iter2 != snowcloud2.end(); iter2++) {
-			(*iter2)->repos();
-			(*iter2)->movment();
-
-		}
-
-
-
-		
-		
-		//"render" section
-		al_clear_to_color(al_map_rgb(0, 25, 51));
-		for (iter3 = snowcloud.begin(); iter3 != snowcloud.end(); iter3++) {
-		(*iter3)->draw();
-		}
-		for (iter2 = snowcloud2.begin(); iter2 != snowcloud2.end(); iter2++) {
-			(*iter2)->draw();
-		}
-	
-	
-
-		al_flip_display();
-	}
-
 	system("pause");
+	al_destroy_display(TIA);
+	
 
-	al_destroy_display(nomnom);
-	return 0;
 }
-snow::snow() {
-	Xpos = rand() % 480 + 1;
-	Ypos = rand() % 640 + 1;
-	size = rand() % 2 + 1;
-}
-snow2::snow2() {
-	Xpos = rand() % 480 + 1;
-	Ypos = rand() % 640 + 1;
-	size = rand() % 8 + 1;
-}
-void snow::repos() {
-	if (Ypos > 640) {
-		Xpos = rand() % 604 + 1;
-		Ypos = 0;
-		size = rand() % 2 + 1;
+double mandelbrot(complex<double>c) {
+	complex <double> z =0;
+	int count = 0;
+	while(abs(z)<2 &&count<80){
+		z = z * z + c;
+
+		count++;
 	}
-
-}
-void snow2::repos(){
-	if (Ypos > 640) {
-		Xpos = rand() % 604 + 1;
-		Ypos = 0;
-		size = rand() % 2 + 1;
-	}
-
-}
-void snow::movment() {
-	Ypos += 1;
-
-}
-void snow2::movment() {
-	Ypos += 2;
-
-}
-
-void snow::draw() {
-	al_draw_filled_circle(Xpos, Ypos, size, al_map_rgb(255, 255, 255));
-
-}
-
-void snow2::draw() {
-	al_draw_filled_circle(Xpos, Ypos, size, al_map_rgb(204, 0, 102));
-
-
+	return count;
 }
